@@ -1,0 +1,16 @@
+engine,run,test,tokens_per_sec,requests_per_sec
+transformers,1,single,187.81,
+transformers,2,single,181.77,
+transformers,3,single,180.93,
+transformers,1,10_one_by_one,186.05,4.14
+transformers,2,10_one_by_one,180.54,4.02
+transformers,3,10_one_by_one,179.72,4.00
+vllm,1,single,221.71,
+vllm,2,single,122.60,
+vllm,3,single,192.47,
+vllm,1,10_one_by_one,212.84,5.36
+vllm,2,10_one_by_one,202.69,5.11
+vllm,3,10_one_by_one,197.35,4.97
+vllm,1,100_together,2647.13,53.22
+vllm,2,100_together,5571.05,112.00
+vllm,3,100_together,4133.05,83.09

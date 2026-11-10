@@ -1,0 +1,21 @@
+W1110 22:41:14.594000 45578 site-packages/torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 30848.29it/s]
+
+===== ANSWER =====
+A GPU, or Graphics Processing Unit, is a powerful computer component that helps process and analyze visual data, such as images and videos. It's like a big brain that quickly processes information to help you see and understand the world around you.
+
+===== DETAILS (normal Transformers, single request) =====
+Device           : mps
+Model load time  : 0.85 sec
+Input tokens     : 39
+Output tokens    : 49
+Response time    : 0.27 sec  (latency)
+Tokens per second: 180.93
+
+===== MULTI LOAD (normal Transformers, 10 requests one by one) =====
+Total requests       : 10
+Total time           : 2.5 sec
+Total output tokens  : 449
+Tokens per second    : 179.72  (throughput)
+Requests per second  : 4.0
+Avg time per request : 0.25 sec
