@@ -1,4 +1,4 @@
-engine,run,test,tokens_per_sec,requests_per_sec
+engine,run,measurement,tokens_per_sec,requests_per_sec
 transformers,1,single,187.81,
 transformers,2,single,181.77,
 transformers,3,single,180.93,
@@ -14,3 +14,15 @@ vllm,3,10_one_by_one,197.35,4.97
 vllm,1,100_together,2647.13,53.22
 vllm,2,100_together,5571.05,112.00
 vllm,3,100_together,4133.05,83.09
+transformers,1,100_together_batched_natural,2471.99,46.45
+transformers,2,100_together_batched_natural,2454.02,46.11
+transformers,3,100_together_batched_natural,2412.85,45.34
+transformers,1,100_together_batched_forced_100,4495.67,44.96
+transformers,2,100_together_batched_forced_100,3819.94,38.20
+transformers,3,100_together_batched_forced_100,3668.92,36.69
+vllm,1,100_together_natural,4463.93,88.75
+vllm,2,100_together_natural,5727.03,113.86
+vllm,3,100_together_natural,6169.87,122.66
+vllm,1,100_together_forced_100,6646.09,66.46
+vllm,2,100_together_forced_100,6463.16,64.63
+vllm,3,100_together_forced_100,6619.36,66.19

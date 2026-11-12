@@ -20,12 +20,14 @@ I wanted to see what vLLM's continuous batching actually gives on a laptop GPU, 
 | `1_download_model.py` | Downloads the model into a local `models/` folder |
 | `2_run_normal.py` | Plain Transformers: 1 question, then 10 questions one after another |
 | `3_run_vllm.py` | vLLM: 1 question, 10 questions one after another, then 100 questions together |
+| `4_run_normal_batched.py` | Plain Transformers: the same 100 questions together in one batch, in two modes (answers stop naturally, and every answer forced to 100 tokens) |
+| `5_run_vllm_matched.py` | vLLM: the same 100 questions together, in the same two modes |
 
-## Results
+## Results: first session
 
-Median of 3 runs, with the range in brackets. Higher is better.
+Transformers one request at a time vs vLLM. Median of 3 runs, with the range in brackets. Higher is better.
 
-| Test | Normal Transformers | vLLM |
+| Measurement | Normal Transformers | vLLM |
 | --- | --- | --- |
 | Single request, tokens/sec | 182 (181 to 188) | 192 (123 to 222) |
 | 10 requests one by one, tokens/sec | 181 (180 to 186) | 203 (197 to 213) |
@@ -39,14 +41,41 @@ Raw numbers for every run are in `results/summary.csv`.
 
 - **One request at a time:** vLLM and plain Transformers are close. This is a tie, and one vLLM run was actually slower.
 - **10 requests one by one:** vLLM was consistently a little ahead, about 12 percent on throughput.
-- **100 requests together:** this is where vLLM pulls away. The median throughput was about 23 times the normal run's, and the range was about 15 to 31 times.
+- **100 requests together:** vLLM's median throughput was about 23 times that of plain Transformers handling requests one by one (range about 15 to 31 times). **This mostly measures batching, not the engine**, because the Transformers side was not batched. See the matched comparison below.
+
+## Matched comparison: batched Transformers vs vLLM
+
+A reader pointed out that the first 100-request result compared batched vLLM with one-by-one Transformers. So I added a batched Transformers baseline (`4_run_normal_batched.py`) and a matching vLLM script (`5_run_vllm_matched.py`). Both use the same 100 questions, greedy decoding and a 100-token limit. Each runs in two modes: answers stop naturally, and every answer is forced to exactly 100 tokens, so the work on both sides is identical.
+
+Median of 3 runs, with the range in brackets. Higher is better.
+
+| Measurement (100 requests together) | Batched Transformers | vLLM |
+| --- | --- | --- |
+| Tokens/sec, answers stop naturally | 2,454 (2,413 to 2,472) | 5,727 (4,464 to 6,170) |
+| Requests/sec, answers stop naturally | 46.1 (45.3 to 46.5) | 113.9 (88.8 to 122.7) |
+| Tokens/sec, forced to 100 tokens each | 3,820 (3,669 to 4,496) | 6,619 (6,463 to 6,646) |
+| Requests/sec, forced to 100 tokens each | 38.2 (36.7 to 45.0) | 66.2 (64.6 to 66.5) |
+
+### What this shows
+
+- Batching alone took plain Transformers from 181 tokens/sec (10 requests one by one) to about 2,450, roughly 13.6 times, with no vLLM involved.
+- With identical work (10,000 tokens on both sides), vLLM was about 1.7 times faster than batched Transformers. Its slowest run was above the fastest batched Transformers run.
+- With natural lengths the gap was about 2.3 times. The engines produced slightly different token totals (5,030 for vLLM, 5,322 for Transformers), so the forced-length pair is the cleaner comparison.
+- The gap is bigger when answer lengths vary. That fits vLLM letting finished requests leave the batch early, but this benchmark does not prove it.
+
+### Caveats for this comparison
+
+- The backend differs as well as the engine: Transformers ran on PyTorch MPS, vLLM ran through vllm-metal (MLX on Metal). Some of the gap may come from the backend and not from vLLM's scheduling. I have not separated the two.
+- In vLLM run 1 the log reported that the machine had paged memory out and sized the KV cache down, and that run was the slowest at natural length. Close other apps before running.
+- The forced-length Transformers runs slowed down across the three runs (4,496, 3,820, 3,669 tokens/sec). I have not found out why.
+- I ran the batched script once to check it before the three saved runs, and left that run out.
 
 ## Caveats
 
 - Three runs per setup, on one Mac, with one small model. Treat the numbers as a snapshot, not a verdict.
 - The 100-request test varied by about 2 times between runs. I did not isolate the cause (background apps, memory pressure or heat are possible).
 - The two engines produce slightly different answers, so output lengths differ. Compare tokens per second and requests per second, not total time.
-- The normal script was not run with 100 requests, because it handles requests one by one and the fair comparison is on throughput.
+- In the first session the normal script handled requests one by one, so its 100-request number mixes batching with engine speed. The matched comparison above separates the two.
 - The vllm-metal plugin is alpha software. Results may change with newer versions.
 
 ## Reproduce it
@@ -71,6 +100,13 @@ Raw numbers for every run are in `results/summary.csv`.
 
         conda deactivate
         $(brew --prefix vllm-metal)/libexec/bin/python 3_run_vllm.py
+
+5. Run the matched comparison:
+
+        conda activate vllm-mac
+        python 4_run_normal_batched.py
+        conda deactivate
+        $(brew --prefix vllm-metal)/libexec/bin/python 5_run_vllm_matched.py
 
 ## Author
 

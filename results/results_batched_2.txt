@@ -1,0 +1,26 @@
+
+===== MULTI LOAD (normal Transformers, 100 requests together, batched; answers stop naturally) =====
+Device               : mps
+Model load time      : 0.81 sec
+Total requests       : 100
+Total time           : 2.17 sec
+Total output tokens  : 5322
+Tokens per second    : 2454.02  (throughput)
+Requests per second  : 46.11
+Avg time per request : 0.022 sec
+
+Sample answer from request 1:
+One fun fact about the number 1 is that it is the smallest prime number, and it is also the only even prime number.
+
+===== MULTI LOAD (normal Transformers, 100 requests together, batched; every answer forced to exactly 100 tokens) =====
+Device               : mps
+Model load time      : 0.81 sec
+Total requests       : 100
+Total time           : 2.62 sec
+Total output tokens  : 10000
+Tokens per second    : 3819.94  (throughput)
+Requests per second  : 38.2
+Avg time per request : 0.026 sec
+
+Sample answer from request 1:
+One fun fact about the number 1 is that it is the smallest prime number, and it is also the only even prime number. This means that it is a prime number that is also divisible only by itself and 1. This property makes it a fascinating number in mathematics. Additionally, the number 1 is also the only number that is neither a prime nor a composite number, as it has no divisors other than 1 and itself. This unique property makes it a fundamental building block of
